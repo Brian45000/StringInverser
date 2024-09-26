@@ -1,42 +1,16 @@
-pipeline {
-    agent any
+# Makefile
 
-    stages {
-        stage('Build') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        // Si le système est de type Unix
-                        sh 'make'
-                    } else {
-                        // Si le système est Windows
-                        bat 'make'
-                    }
-                }
-            }
-        }
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror
+TARGET = StringInverser
 
-        stage('Permissions') {
-            when {
-                expression { isUnix() } // Ce stage ne sera exécuté que sur des systèmes Unix
-            }
-            steps {
-                script {
-                    sh 'chmod +x string_inverser' // donner les droits d'exécution sur le binaire
-                }
-            }
-        }
+all: $(TARGET)
 
-        stage('Nettoyage') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh 'make clean' // Nettoyage sur Unix
-                    } else {
-                        bat 'make clean' // Nettoyage sur Windows
-                    }
-                }
-            }
-        }
-    }
-}
+$(TARGET): $(TARGET).o
+	$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).o
+
+$(TARGET).o: $(TARGET).c
+	$(CC) $(CFLAGS) -c $(TARGET).c
+
+clean:
+	rm -f $(TARGET) $(TARGET).o
