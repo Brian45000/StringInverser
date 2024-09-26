@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clonage du dépôt GitHub') {
+            steps {
+                // Cloner le dépôt GitHub contenant le code et le Makefile
+                git branch: 'main', url: 'https://github.com/csurqunix/StringInverser.git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        // Si Unix, utiliser 'make' avec l'interpréteur 'sh'
+                        sh 'make'
+                    } else {
+                        // Si autre (probablement Windows), utiliser 'make' avec l'utilitaire 'bat'
+                        bat 'make'
+                    }
+                }
+            }
+        }
+        
+        stage('Permissions') {
+            when {
+                expression { isUnix() } // Exécuter uniquement sur les systèmes Unix
+            }
+            steps {
+                // Donner les permissions d'exécution sur le fichier binaire généré
+                sh 'chmod +x inverser' // Assure que le binaire 'inverser' existe
+            }
+        }
+        
+        stage('Nettoyage') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        // Si Unix, nettoyer avec 'make clean' via 'sh'
+                        sh 'make clean'
+                    } else {
+                        // Si autre (Windows), nettoyer avec 'make clean' via 'bat'
+                        bat 'make clean'
+                    }
+                }
+            }
+        }
+    }
+}
