@@ -1,39 +1,22 @@
 pipeline {
     agent any
-
     stages {
+        stage('Clonage du dépôt GitHub') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Brian45000/StringInverser.git'
+                // Lister les fichiers pour vérifier la présence de Makefile
+                sh 'ls -la'
+            }
+        }
         stage('Build') {
             steps {
                 script {
                     if (isUnix()) {
-                        // Si le système est de type Unix
+                        // Vérifier à nouveau la présence du Makefile avant de lancer make
+                        sh 'ls -la'
                         sh 'make'
                     } else {
-                        // Si le système est Windows
                         bat 'make'
-                    }
-                }
-            }
-        }
-
-        stage('Permissions') {
-            when {
-                expression { isUnix() } // Ce stage ne sera exécuté que sur des systèmes Unix
-            }
-            steps {
-                script {
-                    sh 'chmod +x string_inverser' // donner les droits d'exécution sur le binaire
-                }
-            }
-        }
-
-        stage('Nettoyage') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh 'make clean' // Nettoyage sur Unix
-                    } else {
-                        bat 'make clean' // Nettoyage sur Windows
                     }
                 }
             }
